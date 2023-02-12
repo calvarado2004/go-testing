@@ -25,12 +25,12 @@ func Test_isPrime(t *testing.T) {
 	// run the tests of the test table
 	for _, tt := range primeTests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1 := isPrime(tt.testNumber)
-			if got != tt.expectedResult {
-				t.Errorf("isPrime() got = %v, want %v", got, tt.expectedResult)
+			gotResult, gotMessage := isPrime(tt.testNumber)
+			if gotResult != tt.expectedResult {
+				t.Errorf("isPrime() got = %v, want %v", gotResult, tt.expectedResult)
 			}
-			if got1 != tt.expectedMsg {
-				t.Errorf("isPrime() got1 = %v, want %v", got1, tt.expectedMsg)
+			if gotMessage != tt.expectedMsg {
+				t.Errorf("isPrime() got1 = %v, want %v", gotMessage, tt.expectedMsg)
 			}
 		})
 	}
