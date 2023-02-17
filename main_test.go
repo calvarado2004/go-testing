@@ -3,6 +3,7 @@ package main
 import (
 	"io"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -72,4 +73,32 @@ func Test_prompt(t *testing.T) {
 		t.Errorf("prompt() got = %v, want %v", string(out), "Enter a number: ")
 	}
 
+}
+
+func Test_intro(t *testing.T) {
+	// save a copy of os.Stdout
+	oldOut := os.Stdout
+
+	// create  a read and write pipe
+	r, w, _ := os.Pipe()
+
+	// set os.Stdout to the write pipe
+	os.Stdout = w
+
+	// call the function to test
+	intro()
+
+	// close the write pipe
+	_ = w.Close()
+
+	// restore os.Stdout
+	os.Stdout = oldOut
+
+	// read the output from the read pipe
+	out, _ := io.ReadAll(r)
+
+	// compare the results
+	if !strings.Contains(string(out), "Welcome to the prime number checker") {
+		t.Errorf("intro() got = %v, want %v", string(out), "Welcome to the prime number checker")
+	}
 }
