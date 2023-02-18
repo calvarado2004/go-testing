@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"io"
 	"os"
 	"strings"
@@ -46,6 +47,7 @@ func Test_isPrime(t *testing.T) {
 
 }
 
+// Test_prompt tests the prompt function
 func Test_prompt(t *testing.T) {
 	// save a copy of os.Stdout
 	oldOut := os.Stdout
@@ -75,6 +77,7 @@ func Test_prompt(t *testing.T) {
 
 }
 
+// Test_intro tests the intro function
 func Test_intro(t *testing.T) {
 	// save a copy of os.Stdout
 	oldOut := os.Stdout
@@ -101,4 +104,39 @@ func Test_intro(t *testing.T) {
 	if !strings.Contains(string(out), "Welcome to the prime number checker") {
 		t.Errorf("intro() got = %v, want %v", string(out), "Welcome to the prime number checker")
 	}
+}
+
+// Test_checkNumbers tests the checkNumbers function
+func Test_checkNumbers(t *testing.T) {
+
+	// test table
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{"empty", "", "Please enter a valid integer number"},
+		{"negative number", "-1", "-1 negatives are not prime"},
+		{"zero", "0", "0 is not prime by definition"},
+		{"one", "1", "1 is not prime by definition"},
+		{"two", "2", "2 is a prime number"},
+		{"three", "3", "3 is a prime number"},
+		{"quit", "q", ""},
+	}
+
+	// run the tests of the test table
+	for _, tt := range tests {
+
+		input := strings.NewReader(tt.input)
+
+		reader := bufio.NewScanner(input)
+
+		// call the function to test
+		res, _ := checkNumbers(reader)
+
+		if !strings.Contains(res, tt.expected) {
+			t.Errorf("checkNumbers() got = %v, want %v", res, tt.expected)
+		}
+	}
+
 }
