@@ -1,11 +1,14 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
+// Test_application_addIPToContext tests the addIPToContext() middleware.
 func Test_application_addIPToContext(t *testing.T) {
 	tests := []struct {
 		headerName  string
@@ -59,4 +62,25 @@ func Test_application_addIPToContext(t *testing.T) {
 		// create a dummy response writer
 		handlerToTest.ServeHTTP(httptest.NewRecorder(), req)
 	}
+}
+
+func Test_application_IPFromContext(t *testing.T) {
+
+	// create application
+	var app application
+
+	// create a context
+	ctx := context.Background()
+
+	// put something in the context
+	ctx = context.WithValue(ctx, contextUserKey, "192.168.10.2")
+
+	// get the value from the context
+	ip := app.ipFromContext(ctx)
+
+	// perform the test
+	if !strings.EqualFold(ip, "192.168.10.2") {
+		t.Errorf("expected %s but not found", ip)
+	}
+
 }
