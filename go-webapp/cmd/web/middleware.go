@@ -52,12 +52,13 @@ func getIP(r *http.Request) (string, error) {
 
 	forward := r.Header.Get("X-Forwarded-For")
 	if len(forward) > 0 {
-		ip = "forwarded"
+
+		ip = forward
 	}
 
 	if len(ip) == 0 {
 
-		ip = forward
+		ip = "forwarded"
 
 	}
 
