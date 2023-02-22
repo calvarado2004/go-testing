@@ -4,7 +4,10 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"path"
 )
+
+var pathToTemplates = "./templates/"
 
 func (app *application) Home(w http.ResponseWriter, r *http.Request) {
 
@@ -23,7 +26,7 @@ type TemplateData struct {
 func (app *application) render(w http.ResponseWriter, r *http.Request, t string, data *TemplateData) error {
 
 	// parse the template from disk
-	parsedTemplate, err := template.ParseFiles("./templates/" + t)
+	parsedTemplate, err := template.ParseFiles(path.Join(pathToTemplates, t))
 	if err != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return err
