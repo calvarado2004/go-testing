@@ -71,6 +71,11 @@ func (f *Form) Check(ok bool, key, message string) {
 	}
 }
 
+// Valid returns true if there are no errors.
+func (f *Form) Valid() bool {
+	return len(f.Errors) == 0
+}
+
 // IsEmail checks if the provided field is a valid email address.
 func (f *Form) IsEmail(field string) {
 	value := f.Data.Get(field)
