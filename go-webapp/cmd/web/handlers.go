@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 
 var pathToTemplates = "./templates/"
 
+// Home is the handler for the home page
 func (app *application) Home(w http.ResponseWriter, r *http.Request) {
 
 	err := app.render(w, r, "home.page.gohtml", &TemplateData{})
@@ -23,6 +25,7 @@ type TemplateData struct {
 	Data map[string]any
 }
 
+// render is a helper function that parses a template file and writes the
 func (app *application) render(w http.ResponseWriter, r *http.Request, t string, data *TemplateData) error {
 
 	// parse the template from disk
@@ -42,4 +45,24 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, t string,
 	}
 
 	return nil
+}
+
+// Login is the handler for the login page
+func (app *application) Login(w http.ResponseWriter, r *http.Request) {
+
+	err := r.ParseForm()
+	if err != nil {
+		log.Println("error parsing form: %v", err)
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+
+	email := r.Form.Get("email")
+
+	password := r.Form.Get("password")
+
+	log.Printf("email: %v, password %v", email, password)
+
+	fmt.Fprintf(w, "email: %v", email)
+
 }
