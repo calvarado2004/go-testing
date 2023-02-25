@@ -52,7 +52,7 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 
 	err := r.ParseForm()
 	if err != nil {
-		log.Println("error parsing form: %v", err)
+		log.Printf("error parsing form: %v", err)
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
 	}
