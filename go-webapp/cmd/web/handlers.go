@@ -66,10 +66,12 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
 	}
-	
+
 	email := r.Form.Get("email")
 	password := r.Form.Get("password")
 
+	form.IsEmail(email)
+	
 	log.Printf("email: %v, password %v", email, password)
 
 	fmt.Fprintf(w, "email: %v", email)

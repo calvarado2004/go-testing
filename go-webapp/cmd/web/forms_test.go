@@ -113,3 +113,90 @@ func TestForm_ErrorGet(t *testing.T) {
 		t.Error("Expected an empty error string")
 	}
 }
+
+// TestForm_IsEmail tests the IsEmail() method of the Form type.
+func TestForm_IsEmail(t *testing.T) {
+
+	// Test invalid emails
+	var invalidEmails = []struct {
+		name  string
+		input string
+	}{
+		{"invalid email", "me"},
+		{"invalid email", "me@"},
+		{"invalid email", "me@here"},
+		{"invalid email", "me@here."},
+		{"invalid email", "me@.com"},
+		{"invalid email", ""},
+	}
+
+	for _, tt := range invalidEmails {
+		f := NewForm(url.Values{"email": []string{tt.input}})
+		f.Check(false, "email", "This field must be a valid email address")
+		s := f.Errors.Get("email")
+
+		if len(s) == 0 {
+			t.Errorf("%s: expected an error string; got none", tt.name)
+		}
+	}
+
+	// Test valid email
+	var validEmail = []struct {
+		name  string
+		input string
+	}{
+		{"valid email", "me@here.com"},
+	}
+
+	for _, tt := range validEmail {
+		f := NewForm(url.Values{"email": []string{tt.input}})
+		f.Check(true, "email", "This field must be a valid email address")
+		s := f.Errors.Get("email")
+
+		if len(s) != 0 {
+			t.Errorf("%s: expected no error string; got one", tt.name)
+		}
+	}
+
+}
+
+// TestForm_MinLength tests the MinLength() method of the Form type.
+func TestForm_MinLength(t *testing.T) {
+
+	// Test with invalid data
+	var invalidLength = []struct {
+		name  string
+		input string
+	}{
+		{"invalid length", "ab"},
+		{"invalid length", ""},
+	}
+
+	for _, tt := range invalidLength {
+		f := NewForm(url.Values{"password": []string{tt.input}})
+		f.Check(false, "password", "This field must be at least 3 characters long")
+		s := f.Errors.Get("password")
+
+		if len(s) == 0 {
+			t.Errorf("%s: expected an error string; got none", tt.name)
+		}
+	}
+
+	// Test with valid data
+	var validLength = []struct {
+		name  string
+		input string
+	}{
+		{"valid length", "abc"},
+	}
+
+	for _, tt := range validLength {
+		f := NewForm(url.Values{"password": []string{tt.input}})
+		f.Check(true, "password", "This field must be at least 3 characters long")
+		s := f.Errors.Get("password")
+
+		if len(s) != 0 {
+			t.Errorf("%s: expected no error string; got one", tt.name)
+		}
+	}
+}

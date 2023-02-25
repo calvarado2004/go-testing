@@ -57,11 +57,14 @@ func (f *Form) Required(fields ...string) {
 }
 
 // MinLength checks if the provided field is at least a specific length.
-func (f *Form) MinLength(field string, d int) {
+func (f *Form) MinLength(field string, d int) bool {
 	value := f.Data.Get(field)
 	if value != "" && len(value) < d {
 		f.Errors.Add(field, "This field is too short")
+		return false
 	}
+
+	return true
 }
 
 // Check checks if the provided condition is true. If it is not, it adds an error
