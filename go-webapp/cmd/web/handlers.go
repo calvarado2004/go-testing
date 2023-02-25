@@ -72,6 +72,8 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 
 	form.IsEmail(email)
 	
+	form.MinLength(password, 3)
+
 	log.Printf("email: %v, password %v", email, password)
 
 	fmt.Fprintf(w, "email: %v", email)
