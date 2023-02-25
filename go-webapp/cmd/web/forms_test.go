@@ -94,6 +94,7 @@ func TestForm_Check(t *testing.T) {
 
 }
 
+// TestForm_ErrorGet tests the Get() method of the Form type.
 func TestForm_ErrorGet(t *testing.T) {
 	// Test with invalid data
 	form := NewForm(nil)
@@ -104,7 +105,7 @@ func TestForm_ErrorGet(t *testing.T) {
 	if len(s) == 0 {
 		t.Error("Expected a non-empty error string")
 	}
-	
+
 	// Test with valid data
 	s = form.Errors.Get("whatever")
 
