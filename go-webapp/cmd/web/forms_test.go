@@ -75,3 +75,40 @@ func TestForm_Required(t *testing.T) {
 	}
 
 }
+
+// TestForm_Check tests the Check() method of the Form type.
+func TestForm_Check(t *testing.T) {
+
+	// Test with invalid data
+	form := NewForm(nil)
+
+	form.Check(false, "password", "Password is required")
+
+	if form.Valid() {
+		t.Error("Form should not have been valid")
+	}
+
+	if len(form.Errors) != 1 {
+		t.Errorf("Expected 1 error, got %d", len(form.Errors))
+	}
+
+}
+
+func TestForm_ErrorGet(t *testing.T) {
+	// Test with invalid data
+	form := NewForm(nil)
+	form.Check(false, "password", "Password is required")
+
+	s := form.Errors.Get("password")
+
+	if len(s) == 0 {
+		t.Error("Expected a non-empty error string")
+	}
+	
+	// Test with valid data
+	s = form.Errors.Get("whatever")
+
+	if len(s) != 0 {
+		t.Error("Expected an empty error string")
+	}
+}
