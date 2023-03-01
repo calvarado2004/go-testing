@@ -18,7 +18,7 @@ func (app *application) Home(w http.ResponseWriter, r *http.Request) {
 
 	if app.Session.Exists(r.Context(), "test") {
 		message := app.Session.GetString(r.Context(), "test")
-		td["message"] = message
+		td["test"] = message
 		log.Printf("session exists, message: %v", message)
 	} else {
 		app.Session.Put(r.Context(), "test", "Hit this page at "+time.Now().UTC().String())
