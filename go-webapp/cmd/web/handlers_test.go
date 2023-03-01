@@ -47,8 +47,8 @@ func Test_application_handlers(t *testing.T) {
 
 }
 
-// TestAppHome tests the home page handler
-func TestAppHome(t *testing.T) {
+// TestAppHomeOld tests the home page handler
+func TestAppHomeOld(t *testing.T) {
 
 	// create a new request for the home page
 	req, _ := http.NewRequest("GET", "/", nil)
@@ -76,6 +76,57 @@ func TestAppHome(t *testing.T) {
 		t.Errorf("want %q; got %q", "Welcome to the home page", string(body))
 	}
 
+}
+
+// TestAppHome tests the home page handler using a table driven test
+func TestAppHome(t *testing.T) {
+
+	var theTests = []struct {
+		name            string
+		putInSession    string
+		expectedContent string
+	}{
+		{"first visit", "", "Your request came from"},
+		{"second visit", "hello, world!", "hello, world!"},
+	}
+
+	for _, tt := range theTests {
+
+		// create a new request for the home page
+		req, _ := http.NewRequest("GET", "/", nil)
+
+		// add a context and session to the request
+		req = addContextAndSessionToRequest(req, app)
+
+		_ = app.Session.Destroy(req.Context())
+
+		if tt.putInSession != "" {
+
+			// add a value to the session if empty
+			app.Session.Put(req.Context(), "test", tt.putInSession)
+		}
+
+		// create a new response recorder
+		rw := httptest.NewRecorder()
+
+		handler := http.HandlerFunc(app.Home)
+
+		handler.ServeHTTP(rw, req)
+
+		// check the status code is what we expect
+		if rw.Code != http.StatusOK {
+			t.Errorf("want %d; got %d", http.StatusOK, rw.Code)
+		}
+
+		// read the response body
+		body, _ := io.ReadAll(rw.Body)
+
+		// check the response body is what we expect
+		if !strings.Contains(string(body), tt.expectedContent) {
+			t.Errorf("want %q; got %q", tt.expectedContent, string(body))
+		}
+
+	}
 }
 
 // getCtx returns a context with a value added
