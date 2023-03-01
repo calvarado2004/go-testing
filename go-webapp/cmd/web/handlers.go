@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"path"
+	"time"
 )
 
 var pathToTemplates = "./templates/"
@@ -13,7 +14,20 @@ var pathToTemplates = "./templates/"
 // Home is the handler for the home page
 func (app *application) Home(w http.ResponseWriter, r *http.Request) {
 
-	err := app.render(w, r, "home.page.gohtml", &TemplateData{})
+	var td = make(map[string]any)
+
+	if app.Session.Exists(r.Context(), "test") {
+		message := app.Session.GetString(r.Context(), "test")
+		td["message"] = message
+		log.Printf("session exists, message: %v", message)
+	} else {
+		app.Session.Put(r.Context(), "test", "Hit this page at "+time.Now().UTC().String())
+		log.Printf("session created, it was empty")
+	}
+
+	err := app.render(w, r, "home.page.gohtml", &TemplateData{
+		Data: td,
+	})
 	if err != nil {
 		log.Printf("error rendering template: %v", err)
 	}

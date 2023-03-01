@@ -15,12 +15,12 @@ func main() {
 	// set up an app config
 	app := application{}
 
-	// get application routes
-	mux := app.routes()
-
 	// get a session manager
 	app.Session = getSession()
 
+	// get application routes
+	mux := app.routes()
+	
 	// print out a message
 	log.Println("Starting server on :8080")
 
