@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -65,6 +67,15 @@ func TestAppHome(t *testing.T) {
 	if rw.Code != http.StatusOK {
 		t.Errorf("want %d; got %d", http.StatusOK, rw.Code)
 	}
+
+	// read the response body
+	body, _ := io.ReadAll(rw.Body)
+
+	// check the response body is what we expect
+	if !strings.Contains(string(body), "Your request came from") {
+		t.Errorf("want %q; got %q", "Welcome to the home page", string(body))
+	}
+
 }
 
 // getCtx returns a context with a value added
