@@ -29,8 +29,6 @@ func Test_application_handlers(t *testing.T) {
 	// defer the closing of the test server until the test function has completed
 	defer ts.Close()
 
-	pathToTemplates = "./../../templates/"
-
 	// loop through the slice of anonymous structs
 	for _, tt := range theTests {
 		resp, err := ts.Client().Get(ts.URL + tt.url)
@@ -129,6 +127,29 @@ func TestAppHome(t *testing.T) {
 	}
 }
 
+// TestApp_renderWithBadTemplate tests the render function with a bad template
+func TestApp_renderWithBadTemplate(t *testing.T) {
+
+	// set template path to a bad path
+	pathToTemplates = "./testdata"
+
+	// create a new request for the home page
+	req, _ := http.NewRequest("GET", "/", nil)
+
+	// add a context and session to the request
+	req = addContextAndSessionToRequest(req, app)
+
+	// create a new response recorder
+	rw := httptest.NewRecorder()
+
+	error := app.render(rw, req, "bad.page.gothtml", &TemplateData{})
+
+	if error == nil {
+		t.Error("expected an error to be returned")
+	}
+
+}
+
 // getCtx returns a context with a value added
 func getCtx(req *http.Request) context.Context {
 
@@ -147,3 +168,4 @@ func addContextAndSessionToRequest(req *http.Request, app application) *http.Req
 
 	return req.WithContext(ctx)
 }
+
