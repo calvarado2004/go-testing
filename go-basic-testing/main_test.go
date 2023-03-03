@@ -142,6 +142,7 @@ func Test_checkNumbers(t *testing.T) {
 
 }
 
+// Test_readUserInput tests the readUserInput function
 func Test_readUserInput(t *testing.T) {
 
 	// test a function with a channel and an instance of io.Reader
