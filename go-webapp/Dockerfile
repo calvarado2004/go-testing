@@ -5,10 +5,12 @@ RUN mkdir /app
 COPY cmd /app/cmd
 COPY sql /app/sql
 COPY templates /app/templates
+COPY pkg /app/pkg
+COPY go.mod go.sum /app/
 
 WORKDIR /app
 
-RUN go mod init github.com/calvarado2004/go-testing/go-webapp &&  go mod tidy
+RUN go mod tidy
 
 RUN CGO_ENABLED=0 go build -o goWebAppTesting ./cmd/web
 

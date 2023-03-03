@@ -14,8 +14,8 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - ./postgres-data:/var/lib/postgresql/data
-      - ./sql/users.sql:/docker-entrypoint-initdb.d/create_tables.sql
+      - ./webapp/postgres-data:/var/lib/postgresql/data
+      - ./webapp/sql/users.sql:/docker-entrypoint-initdb.d/create_tables.sql
   go-webapp:
     build: .
     restart: always
