@@ -11,7 +11,7 @@ require (
 )
 
 require (
-	github.com/calvarado2004/go-testing/pkg/data v0.0.0-00010101000000-000000000000 // indirect
+	github.com/calvarado2004/go-testing/go-webapp/webapp/pkg/data v0.0.0-20230303055409-c68a48658271 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
