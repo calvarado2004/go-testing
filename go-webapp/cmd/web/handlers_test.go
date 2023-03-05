@@ -148,6 +148,9 @@ func TestApp_renderWithBadTemplate(t *testing.T) {
 		t.Error("expected an error to be returned")
 	}
 
+	// set template path back to the correct path
+	pathToTemplates = "./../../templates/"
+
 }
 
 // getCtx returns a context with a value added
@@ -168,4 +171,3 @@ func addContextAndSessionToRequest(req *http.Request, app application) *http.Req
 
 	return req.WithContext(ctx)
 }
-

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"github.com/alexedwards/scs/v2"
 	"github.com/calvarado2004/go-testing/pkg/db"
@@ -30,6 +31,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	defer func(conn *sql.DB) {
+		err := conn.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(conn)
 
 	app.DB = db.PostgresConn{DB: conn}
 
