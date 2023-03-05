@@ -2,8 +2,10 @@ package main
 
 import (
 	"database/sql"
+	"encoding/gob"
 	"flag"
 	"github.com/alexedwards/scs/v2"
+	"github.com/calvarado2004/go-testing/go-webapp/webapp/pkg/data"
 	"github.com/calvarado2004/go-testing/pkg/db"
 	"log"
 	"net/http"
@@ -19,6 +21,9 @@ type application struct {
 //DSN="host=localhost port=5432 user=postgres password=postgres dbname=users sslmode=disable timezone=UTC connect_timeout=5" go run ./cmd/web
 
 func main() {
+
+	// register the user model with gob
+	gob.Register(data.User{})
 
 	// set up an app config
 	app := application{}

@@ -121,11 +121,12 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(password, user.Password)
-
 	// authenticate the user
-
-	// if not authenticated, redirect to login page
+	if !app.authenticate(r, user, password) {
+		app.Session.Put(r.Context(), "error", "invalid login credentials")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
 
 	// prevent fixation attack
 	_ = app.Session.RenewToken(r.Context())
@@ -136,4 +137,17 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 	app.Session.Put(r.Context(), "flash", "You've been logged in successfully!")
 	http.Redirect(w, r, "/user/profile", http.StatusSeeOther)
 
+}
+
+// authenticate checks the provided password against the hashed password stored in the database for a specific user.
+func (app *application) authenticate(r *http.Request, user *data.User, password string) bool {
+
+	// Check whether the provided password matches the hashed password in the database.
+	if valid, err := user.PasswordMatches(password); err != nil || !valid {
+		return false
+	}
+
+	app.Session.Put(r.Context(), "user", user)
+
+	return true
 }
