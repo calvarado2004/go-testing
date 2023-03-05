@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 )
@@ -170,4 +171,98 @@ func addContextAndSessionToRequest(req *http.Request, app application) *http.Req
 	ctx, _ := app.Session.Load(req.Context(), req.Header.Get("X-Session"))
 
 	return req.WithContext(ctx)
+}
+
+// Test_app_Login tests the login handler
+func Test_app_Login(t *testing.T) {
+
+	// create a new request for the login page
+	var theTests = []struct {
+		name               string
+		postedData         url.Values
+		expectedStatusCode int
+		expectedLocation   string
+	}{
+		{
+			name: "valid credentials",
+			postedData: url.Values{
+				"email":    {"admin@example.com"},
+				"password": {"secret"},
+			},
+			expectedStatusCode: http.StatusSeeOther,
+			expectedLocation:   "/user/profile",
+		},
+		{
+			name: "user not found",
+			postedData: url.Values{
+				"email":    {"me@here.com"},
+				"password": {"secret"},
+			},
+			expectedStatusCode: http.StatusSeeOther,
+			expectedLocation:   "/",
+		},
+		{
+			name: "missing credentials",
+			postedData: url.Values{
+				"email":    {""},
+				"password": {""},
+			},
+			expectedStatusCode: http.StatusSeeOther,
+			expectedLocation:   "/",
+		},
+		{
+			name: "wrong credentials",
+			postedData: url.Values{
+				"email":    {"admin@example.com"},
+				"password": {"wrong"},
+			},
+			expectedStatusCode: http.StatusSeeOther,
+			expectedLocation:   "/",
+		},
+		{
+			name: "missing password",
+			postedData: url.Values{
+				"email":    {"admin@example.com"},
+				"password": {""},
+			},
+			expectedStatusCode: http.StatusSeeOther,
+			expectedLocation:   "/",
+		},
+		{
+			name: "missing email",
+			postedData: url.Values{
+				"email":    {""},
+				"password": {"secret"},
+			},
+			expectedStatusCode: http.StatusSeeOther,
+			expectedLocation:   "/",
+		},
+	}
+
+	// loop through the tests
+	for _, tt := range theTests {
+		req, _ := http.NewRequest("POST", "/login", strings.NewReader(tt.postedData.Encode()))
+		req = addContextAndSessionToRequest(req, app)
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		rw := httptest.NewRecorder()
+		handler := http.HandlerFunc(app.Login)
+		handler.ServeHTTP(rw, req)
+
+		// check the status code is what we expect
+		if rw.Code != tt.expectedStatusCode {
+			t.Errorf("%s: expected %d; got %d", tt.name, tt.expectedStatusCode, rw.Code)
+		}
+
+		// check the location header is what we expect using header.Contains()
+		if rw.Header().Get("Location") == "" {
+			t.Errorf("%s expected a location header to be set", tt.name)
+		}
+
+		// check the location header is what we expect using header.Get()
+		if rw.Header().Get("Location") != tt.expectedLocation {
+			t.Errorf("%s: expected %s; got %s", tt.name, tt.expectedLocation, rw.Header().Get("Location"))
+		}
+
+	}
+
 }
