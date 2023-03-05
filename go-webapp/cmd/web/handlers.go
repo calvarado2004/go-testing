@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -28,6 +27,27 @@ func (app *application) Home(w http.ResponseWriter, r *http.Request) {
 	err := app.render(w, r, "home.page.gohtml", &TemplateData{
 		Data: td,
 	})
+	if err != nil {
+		log.Printf("error rendering template: %v", err)
+	}
+
+}
+
+// Profile is the handler for the profile page
+func (app *application) Profile(w http.ResponseWriter, r *http.Request) {
+
+	var td = make(map[string]any)
+
+	if app.Session.Exists(r.Context(), "test") {
+		message := app.Session.GetString(r.Context(), "test")
+		td["test"] = message
+		log.Printf("session exists, message: %v", message)
+	} else {
+		app.Session.Put(r.Context(), "test", "Hit this page at "+time.Now().UTC().String())
+		log.Printf("session created, it was empty")
+	}
+
+	err := app.render(w, r, "profile.page.gohtml", &TemplateData{})
 	if err != nil {
 		log.Printf("error rendering template: %v", err)
 	}
@@ -76,8 +96,10 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 	form.Required("email", "password")
 
 	if !form.Valid() {
-		log.Printf("form not valid: %v", form.Errors)
-		http.Error(w, "bad request", http.StatusBadRequest)
+		//redirect to login page
+		app.Session.Put(r.Context(), "error", "invalid login credentials")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+
 		return
 	}
 
@@ -86,18 +108,24 @@ func (app *application) Login(w http.ResponseWriter, r *http.Request) {
 
 	user, err := app.DB.GetUserByEmail(email)
 	if err != nil {
-		log.Printf("error getting user by email: %v", err)
+		app.Session.Put(r.Context(), "error", "invalid login credentials")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
-	log.Println("From DB: ", user)
+	log.Println(password, user.Password)
 
-	form.IsEmail(email)
+	// authenticate the user
 
-	form.MinLength(password, 3)
+	// if not authenticated, redirect to login page
 
-	log.Printf("email: %v, password %v", email, password)
+	// prevent fixation attack
+	_ = app.Session.RenewToken(r.Context())
 
-	fmt.Fprintf(w, "email: %v", email)
+	// store success message in session
+
+	// redirect to profile in page
+	app.Session.Put(r.Context(), "flash", "You've been logged in successfully!")
+	http.Redirect(w, r, "/user/profile", http.StatusSeeOther)
 
 }
