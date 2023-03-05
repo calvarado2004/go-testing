@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/calvarado2004/go-testing/go-webapp/webapp/pkg/data"
 	"html/template"
 	"log"
 	"net/http"
@@ -55,12 +56,15 @@ func (app *application) Profile(w http.ResponseWriter, r *http.Request) {
 }
 
 type TemplateData struct {
-	IP   string
-	Data map[string]any
+	IP    string
+	Data  map[string]any
+	Error string
+	Flash string
+	User  data.User
 }
 
 // render is a helper function that parses a template file and writes the
-func (app *application) render(w http.ResponseWriter, r *http.Request, t string, data *TemplateData) error {
+func (app *application) render(w http.ResponseWriter, r *http.Request, t string, td *TemplateData) error {
 
 	// parse the template from disk
 	parsedTemplate, err := template.ParseFiles(path.Join(pathToTemplates, t), path.Join(pathToTemplates, "base.layout.gohtml"))
@@ -69,10 +73,14 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, t string,
 		return err
 	}
 
-	data.IP = app.ipFromContext(r.Context())
+	td.IP = app.ipFromContext(r.Context())
+
+	td.Error = app.Session.PopString(r.Context(), "error")
+
+	td.Flash = app.Session.PopString(r.Context(), "flash")
 
 	// write the template to the http.ResponseWriter
-	err = parsedTemplate.Execute(w, data)
+	err = parsedTemplate.Execute(w, td)
 	if err != nil {
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return err
