@@ -18,8 +18,12 @@ func (app *application) routes() http.Handler {
 	// register routes
 	mux.Get("/", app.Home)
 	mux.Post("/login", app.Login)
-	mux.Get("/user/profile", app.Profile)
 
+	mux.Route("/user", func(r chi.Router) {
+		mux.Use(app.auth)
+		mux.Get("/profile", app.Profile)
+	})
+	
 	// static files
 	fileServer := http.FileServer(http.Dir("./static/"))
 

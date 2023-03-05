@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/calvarado2004/go-testing/go-webapp/webapp/pkg/data"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -78,4 +79,40 @@ func Test_application_IPFromContext(t *testing.T) {
 		t.Errorf("expected %s but not found", ip)
 	}
 
+}
+
+// Test_app_auth tests the auth() middleware.
+func Test_app_auth(t *testing.T) {
+
+	nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	})
+
+	var theTests = []struct {
+		name   string
+		isAuth bool
+	}{
+		{"logged in", true},
+		{"not logged in", false},
+	}
+
+	// create a dummy handler that will check the context
+	for _, tt := range theTests {
+		handlerToTest := app.auth(nextHandler)
+		req := httptest.NewRequest("GET", "http://testing", nil)
+		req = addContextAndSessionToRequest(req, app)
+		if tt.isAuth {
+			app.Session.Put(req.Context(), "user", data.User{ID: 1})
+		}
+		rr := httptest.NewRecorder()
+		handlerToTest.ServeHTTP(rr, req)
+
+		if tt.isAuth && rr.Code != http.StatusOK {
+			t.Errorf("expected %d but got %d", http.StatusOK, rr.Code)
+		}
+
+		if !tt.isAuth && rr.Code != http.StatusTemporaryRedirect {
+			t.Errorf("expected %d but got %d", http.StatusTemporaryRedirect, rr.Code)
+		}
+
+	}
 }

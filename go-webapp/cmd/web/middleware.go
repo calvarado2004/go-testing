@@ -64,3 +64,16 @@ func getIP(r *http.Request) (string, error) {
 
 	return ip, nil
 }
+
+// auth is a middleware that checks if a user is authenticated (signed in).
+func (app *application) auth(next http.Handler) http.Handler {
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !app.Session.Exists(r.Context(), "user") {
+			app.Session.Put(r.Context(), "error", "You must be logged in to access that page")
+			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
