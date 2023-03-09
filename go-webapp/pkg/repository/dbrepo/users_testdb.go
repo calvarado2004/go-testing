@@ -2,7 +2,9 @@ package dbrepo
 
 import (
 	"database/sql"
+	"errors"
 	"github.com/calvarado2004/go-testing/go-webapp/webapp/pkg/data"
+	"time"
 )
 
 type TestDBRepo struct{}
@@ -32,12 +34,24 @@ func (m *TestDBRepo) GetUser(id int) (*data.User, error) {
 // GetUserByEmail returns one user by email address
 func (m *TestDBRepo) GetUserByEmail(email string) (*data.User, error) {
 
-	var user = data.User{
-		ID:    1,
-		Email: "auth@example.com",
+	if email == "admin@example.com" {
+		user := data.User{
+			ID:        1,
+			Email:     "admin@example.com",
+			FirstName: "admin",
+			LastName:  "admin",
+			Password:  "$2a$14$ajq8Q7fbtFRQvXpdCq7Jcuy.Rx1h/L4J60Otx.gyNLbAYctGMJ9tK",
+			IsAdmin:   1,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		}
+
+		return &user, nil
+
 	}
 
-	return &user, nil
+	return nil, errors.New("user not found")
+
 }
 
 // UpdateUser updates one user in the database

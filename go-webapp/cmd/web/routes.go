@@ -17,6 +17,7 @@ func (app *application) routes() http.Handler {
 	// register the unauthenticated routes
 	mux.Get("/", app.Home)
 	mux.Post("/login", app.Login)
+	mux.Get("/user/login", app.Login)
 
 	// register middleware for authenticated routes
 	mux.Route("/user/profile", func(muxAuth chi.Router) {
