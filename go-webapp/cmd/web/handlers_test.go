@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -10,16 +11,20 @@ import (
 	"testing"
 )
 
+// Test_application_handlers tests the handlers
 func Test_application_handlers(t *testing.T) {
 
 	// create a slice of anonymous structs containing the name of the test, the URL path to
 	var theTests = []struct {
-		name               string
-		url                string
-		expectedStatusCode int
+		name                    string
+		url                     string
+		expectedStatusCode      int
+		expectedURL             string
+		expectedFirstStatusCode int
 	}{
-		{"home", "/", http.StatusOK},
-		{"404", "/fish", http.StatusNotFound},
+		{"home", "/", http.StatusOK, "/", http.StatusOK},
+		{"404", "/fish", http.StatusNotFound, "/fish", http.StatusNotFound},
+		{"profile", "/user/profile", http.StatusOK, "/", http.StatusTemporaryRedirect},
 	}
 
 	routes := app.routes()
@@ -29,6 +34,18 @@ func Test_application_handlers(t *testing.T) {
 
 	// defer the closing of the test server until the test function has completed
 	defer ts.Close()
+
+	// create a new URL from the test server URL
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
+	client := &http.Client{
+		Transport: tr,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
 
 	// loop through the slice of anonymous structs
 	for _, tt := range theTests {
@@ -40,6 +57,15 @@ func Test_application_handlers(t *testing.T) {
 
 		if resp.StatusCode != tt.expectedStatusCode {
 			t.Errorf("%s: expected %d; got %d", tt.name, tt.expectedStatusCode, resp.StatusCode)
+		}
+
+		resp2, _ := client.Get(ts.URL + tt.url)
+		if resp2.StatusCode != tt.expectedFirstStatusCode {
+			t.Errorf("%s: expected %d; got %d", tt.name, tt.expectedFirstStatusCode, resp2.StatusCode)
+		}
+
+		if resp.Request.URL.Path != tt.expectedURL {
+			t.Errorf("%s: expected final url %s; got %s", tt.name, tt.expectedURL, resp.Request.URL.Path)
 		}
 
 	}
