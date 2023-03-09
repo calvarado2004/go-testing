@@ -6,14 +6,15 @@ import (
 	"flag"
 	"github.com/alexedwards/scs/v2"
 	"github.com/calvarado2004/go-testing/go-webapp/webapp/pkg/data"
-	"github.com/calvarado2004/go-testing/pkg/db"
+	"github.com/calvarado2004/go-testing/pkg/repository"
+	"github.com/calvarado2004/go-testing/pkg/repository/dbrepo"
 	"log"
 	"net/http"
 	"os"
 )
 
 type application struct {
-	DB      db.PostgresConn
+	DB      repository.DatabaseRepo
 	DSN     string
 	Session *scs.SessionManager
 }
@@ -44,7 +45,7 @@ func main() {
 		}
 	}(conn)
 
-	app.DB = db.PostgresConn{DB: conn}
+	app.DB = &dbrepo.PostgresDBRepo{DB: conn}
 
 	// get a session manager
 	app.Session = getSession()
