@@ -80,6 +80,10 @@ func TestMain(m *testing.M) {
 	}
 
 	// populate the test database
+	err = createTables()
+	if err != nil {
+		log.Fatalf("Could not create tables: %s", err)
+	}
 
 	// run the tests
 
@@ -88,4 +92,22 @@ func TestMain(m *testing.M) {
 	// clean up after tests
 
 	os.Exit(code)
+}
+
+// createTables creates the tables for the test database
+func createTables() error {
+
+	tableSQL, err := os.ReadFile("./testdata/users.sql")
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	_, err = testDB.Exec(string(tableSQL))
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	return nil
 }
