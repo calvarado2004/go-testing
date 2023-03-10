@@ -129,7 +129,7 @@ func Test_pingDB(t *testing.T) {
 	}
 }
 
-// Test_insertUser tests the insertUser function
+// TestPostgresDBRepoInsertUser tests the insertUser function
 func TestPostgresDBRepoInsertUser(t *testing.T) {
 
 	testUser := data.User{
@@ -149,6 +149,41 @@ func TestPostgresDBRepoInsertUser(t *testing.T) {
 
 	if id != 1 {
 		t.Errorf("expected id to be 1, got %d", id)
+	}
+
+}
+
+// TestPostgresDBRepoAllUsers tests the allUsers function
+func TestPostgresDBRepoAllUsers(t *testing.T) {
+	users, err := testRepo.AllUsers()
+	if err != nil {
+		t.Errorf("allUsers failed: %s", err)
+	}
+
+	if len(users) != 1 {
+		t.Errorf("expected 1 user, got %d", len(users))
+	}
+
+	testUser2 := data.User{
+		FirstName: "Jack",
+		LastName:  "Smith",
+		Email:     "jack@example.com",
+		Password:  "secret",
+		IsAdmin:   1,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	_, _ = testRepo.InsertUser(testUser2)
+
+	users, err = testRepo.AllUsers()
+
+	if err != nil {
+		t.Errorf("allUsers failed: %s", err)
+	}
+
+	if len(users) != 2 {
+		t.Errorf("expected 2 users, got %d", len(users))
 	}
 
 }
