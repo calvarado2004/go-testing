@@ -3,6 +3,8 @@ package dbrepo
 import (
 	"database/sql"
 	"fmt"
+	"github.com/calvarado2004/go-testing/go-webapp/webapp/pkg/data"
+	"github.com/calvarado2004/go-testing/pkg/repository"
 	_ "github.com/jackc/pgconn"
 	_ "github.com/jackc/pgx/v4"
 	_ "github.com/jackc/pgx/v4/stdlib"
@@ -11,6 +13,7 @@ import (
 	"log"
 	"os"
 	"testing"
+	"time"
 )
 
 //integration tests for Postgres dbrepo
@@ -27,6 +30,7 @@ var (
 var resource *dockertest.Resource
 var pool *dockertest.Pool
 var testDB *sql.DB
+var testRepo repository.DatabaseRepo
 
 // TestMain is the entry point for all tests
 func TestMain(m *testing.M) {
@@ -85,6 +89,9 @@ func TestMain(m *testing.M) {
 		log.Fatalf("Could not create tables: %s", err)
 	}
 
+	// initialize the repository
+	testRepo = &PostgresDBRepo{DB: testDB}
+
 	// run the tests
 	code := m.Run()
 
@@ -120,4 +127,28 @@ func Test_pingDB(t *testing.T) {
 	if err != nil {
 		t.Error("can't ping database")
 	}
+}
+
+// Test_insertUser tests the insertUser function
+func TestPostgresDBRepoInsertUser(t *testing.T) {
+
+	testUser := data.User{
+		FirstName: "John",
+		LastName:  "Doe",
+		Email:     "john@example.com",
+		Password:  "secret",
+		IsAdmin:   1,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	id, err := testRepo.InsertUser(testUser)
+	if err != nil {
+		t.Errorf("insertUser failed: %s", err)
+	}
+
+	if id != 1 {
+		t.Errorf("expected id to be 1, got %d", id)
+	}
+
 }
