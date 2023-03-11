@@ -210,4 +210,23 @@ func TestPostgresDBRepoGetUser(t *testing.T) {
 	if user.Email != "john@example.com" {
 		t.Errorf("expected email to be john@example.com")
 	}
+
+	user, err = testRepo.GetUser(3)
+	if err == nil {
+		t.Errorf("expected error, got nil")
+	}
+
+}
+
+// TestPostgresDBRepoGetUserByEmail tests the getUserByEmail function
+func TestPostgresDBRepoGetUserByEmail(t *testing.T) {
+	user, err := testRepo.GetUserByEmail("jack@example.com")
+	if err != nil {
+		t.Errorf("getUserByEmail failed: %s", err)
+	}
+
+	if user.ID != 2 {
+		t.Errorf("expected id to be 2, got %d", user.ID)
+	}
+
 }
