@@ -294,3 +294,19 @@ func TestPostgresDBRepoResetPassword(t *testing.T) {
 	}
 
 }
+
+// TestPostgresDBRepoInsertUserImage tests the insertUserImage function
+func TestPostgresDBRepoInsertUserImage(t *testing.T) {
+
+	testUserImage := data.UserImage{}
+
+	id, err := testRepo.InsertUserImage(testUserImage)
+	if err != nil {
+		t.Errorf("insertUserImage failed: %d", err)
+	}
+
+	if id != 1 {
+		t.Errorf("expected id to be 1, got %d", id)
+	}
+
+}
