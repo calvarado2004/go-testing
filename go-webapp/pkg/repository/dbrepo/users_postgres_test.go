@@ -230,3 +230,32 @@ func TestPostgresDBRepoGetUserByEmail(t *testing.T) {
 	}
 
 }
+
+// TestPostgresDBRepoUpdateUser tests the updateUser function
+func TestPostgresDBRepoUpdateUser(t *testing.T) {
+
+	user, _ := testRepo.GetUser(2)
+	user.FirstName = "Jackie"
+	user.LastName = "Smithy"
+	user.Email = "jackie@smithy.com"
+
+	err := testRepo.UpdateUser(*user)
+	if err != nil {
+		t.Errorf("updateUser failed: %s", err)
+	}
+
+	user, _ = testRepo.GetUser(2)
+
+	if user.FirstName != "Jackie" {
+		t.Errorf("expected first name to be Jackie, got %s", user.FirstName)
+	}
+
+	if user.LastName != "Smithy" {
+		t.Errorf("expected last name to be Smithy, got %s", user.LastName)
+	}
+
+	if user.Email != "jackie@smithy.com" {
+		t.Errorf("expected email to be jackie@smithy.com, got %s", user.Email)
+	}
+
+}
