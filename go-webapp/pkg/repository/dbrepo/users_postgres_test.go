@@ -273,3 +273,24 @@ func TestPostgresDBRepoDeleteUser(t *testing.T) {
 	}
 
 }
+
+// TestPostgresDBRepoResetPassword tests the resetPassword function
+func TestPostgresDBRepoResetPassword(t *testing.T) {
+
+	err := testRepo.ResetPassword(2, "newpassword")
+	if err != nil {
+		t.Errorf("resetPassword failed: %s", err)
+	}
+
+	user, _ := testRepo.GetUser(2)
+
+	matches, err := user.PasswordMatches("newpassword")
+	if err != nil {
+		t.Errorf("passwordMatches failed: %s", err)
+	}
+
+	if !matches {
+		t.Error("expected password to match")
+	}
+
+}
